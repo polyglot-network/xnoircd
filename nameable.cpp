@@ -61,10 +61,11 @@ std::string Nameable::associates_as_string() {
   return associate_list;
 }
 
-void Nameable::send_direct(std::vector<IRCCommand> messages) {}
-void Nameable::send_relay(std::vector<IRCCommand> messages) {
+void Nameable::send_direct(std::vector<IRCCommand> messages, std::string exclude) {}
+void Nameable::send_relay(std::vector<IRCCommand> messages, std::string exclude) {
   for (Nameable* associate : this->associates) {
-    associate->send_direct(messages);
+    if (associate->get_addressable_name() != exclude)
+      associate->send_direct(messages);
   }
 }
 

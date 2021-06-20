@@ -52,13 +52,17 @@ std::vector<IRCCommand> User::user_cmd(IRCCommand cmd) {
     this->state = Registered;
   }
   
-  return {
+  std::vector<IRCCommand> to_return = {
     IRCCommand(server->get_hostname(), "001", this->get_nick(), "Welcome to the Polyglottal Network, " + this->get_nick()),
     IRCCommand(server->get_hostname(), "002", this->get_nick(), "Your host is " + server->get_hostname()),
     IRCCommand(server->get_hostname(), "003", this->get_nick(), "This server was never created."),
-    IRCCommand(server->get_hostname(), "004", this->get_nick(), server->get_hostname(), "0", "ABCabc", "ABCabc"),
-    motd_cmd(IRCCommand())[0]
+    IRCCommand(server->get_hostname(), "004", this->get_nick(), server->get_hostname(), "0", "ABCabc", "ABCabc")
   };
+
+  auto motd = motd_cmd(IRCCommand());
+
+  to_return.insert(to_return.end(), motd.begin(), motd.end());
+  return to_return;
 }
 
 std::vector<IRCCommand> User::ping_cmd(IRCCommand cmd) {
@@ -121,10 +125,11 @@ std::vector<IRCCommand> User::privmsg_cmd(IRCCommand cmd) {
 
   if (server->has_addressable_name(named_target)) {
     Nameable* target = server->resolve_addressable_name(named_target);
-    for (Nameable* associate : target->get_associates()) {
+    /*for (Nameable* associate : target->get_associates()) {
       if (associate->get_addressable_name() != this->get_nick())
         associate->send_direct({IRCCommand(this->get_nick(), "PRIVMSG", named_target, cmd.get_parameter(1))});
-    }
+    }*/
+    target->send_direct({IRCCommand(this->get_nick(), "PRIVMSG", named_target, cmd.get_parameter(1))}, this->get_nick());
   }
 
   return {};
@@ -164,15 +169,18 @@ std::vector<IRCCommand> User::whois_cmd(IRCCommand cmd) {
 }
 
 std::vector<IRCCommand> User::topic_cmd(IRCCommand cmd) {
-  if (!server->has_addressable_name(cmd.get_parameter(0)))
+  std::string named_channel = cmd.get_parameter(0);
+  if (!server->has_addressable_name(named_channel))
     return {};
 
-  Nameable* target = server->resolve_addressable_name(cmd.get_parameter(0));
+  Nameable* target = server->resolve_addressable_name(named_channel);
   if (target->what_are_you() != NT_Channel)
     return {};
 
-  ((Channel*)target)->set_topic(cmd.get_parameter(1));
-  return {};
+  std::string topic = cmd.get_parameter(1);
+
+  ((Channel*)target)->set_topic(topic);;
+  return {IRCCommand(server->get_hostname(), this->get_nick(), named_channel, topic)};
 }
 
 std::vector<IRCCommand> User::names_cmd(IRCCommand cmd) {
@@ -183,7 +191,10 @@ std::vector<IRCCommand> User::names_cmd(IRCCommand cmd) {
   if (resolved->what_are_you() != NT_Channel)
     return {};
   Channel* chan = (Channel*)resolved;
-  return {IRCCommand(server->get_hostname(), "353", this->get_nick(), named_channel, chan->associates_as_string())};
+  return {
+    IRCCommand(server->get_hostname(), "353", this->get_nick(), named_channel, chan->associates_as_string()),
+    IRCCommand(server->get_hostname(), "366", this->get_nick(), named_channel, "End of NAMES.")
+  };
 }
 
 std::vector<IRCCommand> User::motd_cmd(IRCCommand cmd) {
@@ -257,7 +268,7 @@ std::string User::get_realname(){
   return realname;
 }
 
-void User::send_direct(std::vector<IRCCommand> messages) {
+void User::send_direct(std::vector<IRCCommand> messages, std::string exclude) {
   for (IRCCommand m : messages) {
     std::cout << m.to_string() << "\n";
     this->connection->send(m.to_string());

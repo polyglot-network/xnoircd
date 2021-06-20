@@ -67,7 +67,7 @@ public:
 
   std::string get_realname();
 
-  void send_direct(std::vector<IRCCommand> messages);
+  void send_direct(std::vector<IRCCommand> messages, std::string exclude="");
 
   NameableType what_are_you() override;
 

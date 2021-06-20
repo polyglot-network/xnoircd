@@ -37,8 +37,8 @@ public:
   void remove_associate(Nameable* associate);
   std::string associates_as_string();
 
-  virtual void send_direct(std::vector<IRCCommand> messages);
-  void send_relay(std::vector<IRCCommand> messages);
+  virtual void send_direct(std::vector<IRCCommand> messages, std::string exclude="");
+  void send_relay(std::vector<IRCCommand> messages, std::string exclude="");
 
   virtual NameableType what_are_you();
 };

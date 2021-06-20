@@ -14,7 +14,7 @@ public:
   Channel(IRCServer* server, std::string channel_name);
   ~Channel();
 
-  void send_direct(std::vector<IRCCommand> messages);
+  void send_direct(std::vector<IRCCommand> messages, std::string exclude="");
 
   std::string get_topic();
   bool has_topic();
