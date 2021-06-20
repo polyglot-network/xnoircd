@@ -35,6 +35,8 @@ void Connection::kill() {
 }
 
 void Connection::send(std::string to_write) {
+  if (to_write == "")
+    return;
   to_write = to_write + "\r\n";
   const char* buffer = to_write.c_str();
   int len = strlen(buffer);

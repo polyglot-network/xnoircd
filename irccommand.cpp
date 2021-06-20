@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+IRCCommand::IRCCommand() {}
 IRCCommand::IRCCommand(std::string raw_command) {
   if (raw_command[0] == '@') {
     int index = raw_command.find_first_of(" ");
@@ -30,28 +31,43 @@ IRCCommand::IRCCommand(std::string raw_command) {
 
   int index = raw_command.find_first_of(" ");
   command = raw_command.substr(0, index);
+  if (index == std::string::npos)
+    return;
   raw_command = raw_command.substr(index+1);
 
   if (raw_command[0] != 0)
     raw_command.substr(1);
   else 
     return;
-
-  std::vector<std::string> payloads;
   index = raw_command.find_first_of(" ");
 
   while (index != std::string::npos && raw_command[0] != ':') {
-    payloads.push_back(raw_command.substr(0, index));
+    this->parameters.push_back(raw_command.substr(0, index));
     raw_command = raw_command.substr(index + 1);
     index = raw_command.find_first_of(" ");
   }
 
   if (raw_command[0] == ':')
-    payloads.push_back(raw_command.substr(1));
+    this->parameters.push_back(raw_command.substr(1));
   else
-    payloads.push_back(raw_command);
-  
-  this->payload = payloads;
+    this->parameters.push_back(raw_command);
+}
+IRCCommand::IRCCommand(std::string source, std::string command) {
+  this->source = source;
+  this->command = command;
+}
+/*
+template<typename... T>
+IRCCommand::IRCCommand(std::string source, std::string command, T... params) {
+  this->source = source;
+  this->command = command;
+  this->parameters = {params...};
+}
+*/
+
+IRCCommand::~IRCCommand() {
+  this->parameters.clear();
+  this->parameters.shrink_to_fit();
 }
 
 bool IRCCommand::has_source() {
@@ -70,25 +86,27 @@ std::string IRCCommand::get_command() {
   return command;
 }
 
-bool IRCCommand::has_payload() {
-  return payload.size() > 0;
+bool IRCCommand::has_parameter() {
+  return parameters.size() > 0;
 }
 
-std::string IRCCommand::get_payload(int i) {
-  return payload.at(i);
+std::string IRCCommand::get_parameter(int i) {
+  return parameters.at(i);
 }
 
-int IRCCommand::get_payload_count() {
-  return payload.size();
+int IRCCommand::get_parameter_count() {
+  return parameters.size();
 }
 
 std::string IRCCommand::to_string() {
   std::string myself;
   if (has_source())
-    myself += "Source: " + get_source() + "\n";
-  if (has_command())
-    myself += "Command: " + get_command() + "\n";
-  for (std::string p : payload)
-    myself += "Parameters: " + p + "\n";
+    myself += ":" + get_source() + " ";
+  
+  myself += get_command();
+  
+  for (auto i=parameters.begin(); i != parameters.end(); i++)
+    myself += ((i==parameters.end()-1)&&(i->find(" ")!=std::string::npos)?" :":" ") + *i;
+
   return myself;
 }

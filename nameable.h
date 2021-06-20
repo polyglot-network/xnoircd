@@ -7,10 +7,12 @@
 #include <iostream>
 #include "connection.h"
 #include "ircserver.h"
+#include "irccommand.h"
 
 enum NameableType {
-  NT_User,
-  NT_Channel
+  NT_None = 1,
+  NT_User = 2,
+  NT_Channel = 3
 };
 
 class Nameable {
@@ -35,8 +37,8 @@ public:
   void remove_associate(Nameable* associate);
   std::string associates_as_string();
 
-  virtual void send_direct(std::string message);
-  void send_relay(std::string message);
+  virtual void send_direct(std::vector<IRCCommand> messages);
+  void send_relay(std::vector<IRCCommand> messages);
 
   virtual NameableType what_are_you();
 };

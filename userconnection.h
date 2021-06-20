@@ -7,16 +7,10 @@
 #include "ircserver.h"
 #include "user.h"
 
-enum UCState {
-  Initial,
-  Registered
-};
-
 class User;
 class UserConnection: public Connection {
 private:
   User* user;
-  UCState state = Initial;
   IRCServer* server;
 public:
   UserConnection(int fd, IRCServer* server);

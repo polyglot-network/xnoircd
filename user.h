@@ -12,24 +12,32 @@
 #include "nameable.h"
 #include "channel.h"
 
+enum UCState {
+  Initial,
+  Registered
+};
+
 class UserConnection;
 class User: public Nameable {
 private:
   std::string username, realname = "";
   Connection* connection;
+  UCState state;
 
-  void nick_cmd(IRCCommand* cmd);
-  void ping_cmd(IRCCommand* cmd);
-  void who_cmd(IRCCommand* cmd);
-  void whois_cmd(IRCCommand* cmd);
-  void join_cmd(IRCCommand* cmd);
-  void part_cmd(IRCCommand* cmd);
-  void quit_cmd(IRCCommand* cmd);
-  void privmsg_cmd(IRCCommand* cmd);
-  void topic_cmd(IRCCommand* cmd);
-  void names_cmd(IRCCommand* cmd);
+  std::vector<IRCCommand> nick_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> user_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> ping_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> who_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> whois_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> join_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> part_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> quit_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> privmsg_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> topic_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> names_cmd(IRCCommand cmd);
+  std::vector<IRCCommand> motd_cmd(IRCCommand cmd);
 
-  static std::unordered_map<std::string, std::tuple<int, std::function<void(User*, IRCCommand*)>>> commands;
+  static std::unordered_map<std::string, std::tuple<int, std::function<std::vector<IRCCommand>(User*, IRCCommand)>, bool>> commands;
 
   //std::string construct_string(int count, std::string source, std::string command, std::string parameters...);
   template<typename... T>
@@ -39,9 +47,9 @@ public:
   User(IRCServer* server, UserConnection* conn);
   ~User();
 
-  void process_cmd(IRCCommand* cmd);
+  std::vector<IRCCommand> process_cmd(IRCCommand cmd);
 
-  void set_nick(std::string nick);
+  IRCCommand set_nick(std::string nick);
 
   void set_username(std::string username);
 
@@ -59,9 +67,9 @@ public:
 
   std::string get_realname();
 
-  void send_direct(std::string message);
+  void send_direct(std::vector<IRCCommand> messages);
 
-  NameableType what_are_you();
+  NameableType what_are_you() override;
 
   void destroy();
 };

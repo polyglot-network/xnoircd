@@ -9,9 +9,19 @@ class IRCCommand {
 private:
   std::unordered_map<std::string, std::string> tags;
   std::string source, command = "";
-  std::vector<std::string> payload;
+  std::vector<std::string> parameters;
 public:
+  IRCCommand();
   IRCCommand(std::string raw_command);
+  IRCCommand(std::string source, std::string command);
+  template<typename... T>
+  IRCCommand(std::string source, std::string command, T... params) {
+    this->source = source;
+    this->command = command;
+    this->parameters = {params...};
+  }
+
+  ~IRCCommand();
 
   bool has_source();
 
@@ -21,11 +31,11 @@ public:
 
   std::string get_command();
 
-  bool has_payload();
+  bool has_parameter();
 
-  std::string get_payload(int i);
+  std::string get_parameter(int i);
 
-  int get_payload_count();
+  int get_parameter_count();
 
   std::string to_string();
 };

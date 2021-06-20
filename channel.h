@@ -14,13 +14,13 @@ public:
   Channel(IRCServer* server, std::string channel_name);
   ~Channel();
 
-  void send_direct(std::string message);
+  void send_direct(std::vector<IRCCommand> messages);
 
   std::string get_topic();
   bool has_topic();
   void set_topic(std::string topic);
 
-  NameableType what_are_you();
+  NameableType what_are_you() override;
 };
 
 #endif

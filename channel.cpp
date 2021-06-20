@@ -9,8 +9,8 @@ Channel::~Channel() {
   remove_addressable_name(channel_name);
 }
 
-void Channel::send_direct(std::string message) {
-  send_relay(message);
+void Channel::send_direct(std::vector<IRCCommand> messages) {
+  send_relay(messages);
 }
 
 std::string Channel::get_topic() {

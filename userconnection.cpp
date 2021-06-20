@@ -13,24 +13,24 @@ void UserConnection::process_cmd(std::string cmd_in) {
   if (cmd_in == "")
     return;
 
-  IRCCommand* cmd = new IRCCommand(cmd_in);
-  std::cout << cmd_in << std::endl;
+  IRCCommand cmd = IRCCommand(cmd_in);
+  std::cout << cmd.to_string() << std::endl;
 
-  if (state == Registered) {
+/* if (state == Registered) {
     user->process_cmd(cmd);
     delete cmd;
     return;
   }
 
-  std::string command = cmd->get_command();
+  std::string command = cmd.get_command();
 
-  if (command == "NICK" && cmd->has_payload()) {
-    user->set_nick(cmd->get_payload(0));
+  if (command == "NICK" && cmd.has_parameter()) {
+    user->set_nick(cmd.get_parameter(0));
   }
 
-  if (command == "USER" && cmd->has_payload()) {
-    user->set_username(cmd->get_payload(0));
-    user->set_realname(cmd->get_payload(3));
+  if (command == "USER" && cmd.has_parameter()) {
+    user->set_username(cmd.get_parameter(0));
+    user->set_realname(cmd.get_parameter(3));
   }
   
   if (user->has_nick() && user->has_username()) {
@@ -41,8 +41,10 @@ void UserConnection::process_cmd(std::string cmd_in) {
     send(":xnoircd 004 " + user->get_nick() + " xnoircd 0 ABCabc ABCabc");
     send(":xnoircd 422 " + user->get_nick() + " :No MOTD");
   }
+*/
 
-  delete cmd;
+  for (IRCCommand c : user->process_cmd(cmd))
+    send(c.to_string());
 }
 
 void UserConnection::destroy() {

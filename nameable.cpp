@@ -61,11 +61,11 @@ std::string Nameable::associates_as_string() {
   return associate_list;
 }
 
-void Nameable::send_direct(std::string message) {}
-void Nameable::send_relay(std::string message) {
+void Nameable::send_direct(std::vector<IRCCommand> messages) {}
+void Nameable::send_relay(std::vector<IRCCommand> messages) {
   for (Nameable* associate : this->associates) {
-    associate->send_direct(message);
+    associate->send_direct(messages);
   }
 }
 
-NameableType Nameable::what_are_you() {}
+NameableType Nameable::what_are_you() {return NT_None;}
