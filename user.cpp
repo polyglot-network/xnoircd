@@ -125,10 +125,6 @@ std::vector<IRCCommand> User::privmsg_cmd(IRCCommand cmd) {
 
   if (server->has_addressable_name(named_target)) {
     Nameable* target = server->resolve_addressable_name(named_target);
-    /*for (Nameable* associate : target->get_associates()) {
-      if (associate->get_addressable_name() != this->get_nick())
-        associate->send_direct({IRCCommand(this->get_nick(), "PRIVMSG", named_target, cmd.get_parameter(1))});
-    }*/
     target->send_direct({IRCCommand(this->get_nick(), "PRIVMSG", named_target, cmd.get_parameter(1))}, this->get_nick());
   }
 
@@ -203,7 +199,7 @@ std::vector<IRCCommand> User::motd_cmd(IRCCommand cmd) {
 
 std::vector<IRCCommand> User::process_cmd(IRCCommand cmd) {
   auto command = commands.find(cmd.get_command());
-  //return {};
+
   if (command == commands.end()) {
     return {IRCCommand(server->get_hostname(), "421",  get_nick(), cmd.get_command(), "Unknown Command.")};
   }
