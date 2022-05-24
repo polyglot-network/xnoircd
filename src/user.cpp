@@ -62,6 +62,7 @@ std::vector<IRCCommand> User::user_cmd(IRCCommand cmd) {
   auto motd = motd_cmd(IRCCommand());
 
   to_return.insert(to_return.end(), motd.begin(), motd.end());
+
   return to_return;
 }
 
@@ -200,13 +201,11 @@ std::vector<IRCCommand> User::motd_cmd(IRCCommand cmd) {
 std::vector<IRCCommand> User::process_cmd(IRCCommand cmd) {
   auto command = commands.find(cmd.get_command());
 
-  if (command == commands.end()) {
+  if (command == commands.end())
     return {IRCCommand(server->get_hostname(), "421",  get_nick(), cmd.get_command(), "Unknown Command.")};
-  }
   
-  if (cmd.get_parameter_count() < std::get<0>(command->second)) {
+  if (cmd.get_parameter_count() < std::get<0>(command->second))
     return {IRCCommand(server->get_hostname(), "461", get_nick(), cmd.get_command(), "Too few parameters.")};
-  }
 
   if (this->state == Initial && std::get<2>(command->second))
     return {};

@@ -1,7 +1,5 @@
 #include "irccommand.h"
 
-#include <iostream>
-
 IRCCommand::IRCCommand() {}
 IRCCommand::IRCCommand(std::string raw_command) {
   if (raw_command[0] == '@') {
@@ -56,14 +54,6 @@ IRCCommand::IRCCommand(std::string source, std::string command) {
   this->source = source;
   this->command = command;
 }
-/*
-template<typename... T>
-IRCCommand::IRCCommand(std::string source, std::string command, T... params) {
-  this->source = source;
-  this->command = command;
-  this->parameters = {params...};
-}
-*/
 
 IRCCommand::~IRCCommand() {
   this->parameters.clear();
